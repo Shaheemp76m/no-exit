@@ -1,0 +1,95 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://shaders/soulslike_sky.gdshader" id="1_r8hon"]
+[ext_resource type="Shader" path="res://shaders/moon_surface.gdshader" id="2_bpcbd"]
+[ext_resource type="Texture2D" path="res://assets/environment/nasa_moon_albedo_2k.jpg" id="3_bpcbd"]
+[ext_resource type="Texture2D" path="res://assets/environment/nasa_moon_normal.png" id="4_d6edy"]
+[ext_resource type="Shader" path="res://shaders/moon_halo.gdshader" id="4_ek77s"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_klssy"]
+shader = ExtResource("1_r8hon")
+shader_parameter/upper_sky_color = Color(0.012, 0.016, 0.034, 1)
+shader_parameter/mid_sky_color = Color(0.025, 0.032, 0.058, 1)
+shader_parameter/horizon_color = Color(0.055, 0.065, 0.09, 1)
+shader_parameter/ground_color = Color(0.005, 0.006, 0.01, 1)
+shader_parameter/gradient_height = 0.65
+shader_parameter/gradient_intensity = 1.15
+shader_parameter/star_density = 36.0
+shader_parameter/star_brightness = 1.35
+shader_parameter/twinkle_intensity = 0.3
+shader_parameter/twinkle_speed = 1.5
+shader_parameter/haze_intensity = 0.15
+
+[sub_resource type="Sky" id="Sky_gmjf6"]
+sky_material = SubResource("ShaderMaterial_klssy")
+process_mode = 1
+
+[sub_resource type="Environment" id="Environment_20t8s"]
+background_mode = 2
+sky = SubResource("Sky_gmjf6")
+ambient_light_source = 2
+ambient_light_color = Color(0.025, 0.035, 0.065, 1)
+ambient_light_energy = 0.4
+tonemap_mode = 2
+tonemap_exposure = 1.05
+glow_enabled = true
+glow_intensity = 0.35
+glow_bloom = 0.08
+glow_blend_mode = 2
+fog_enabled = true
+fog_light_color = Color(0.018, 0.022, 0.038, 1)
+fog_density = 0.005
+fog_sky_affect = 0.15
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_yprx4"]
+render_priority = 0
+shader = ExtResource("2_bpcbd")
+shader_parameter/albedo_texture = ExtResource("3_bpcbd")
+shader_parameter/normal_map = ExtResource("4_d6edy")
+shader_parameter/normal_depth = 1.1
+shader_parameter/moon_tint = Color(0.86, 0.9, 0.96, 1)
+shader_parameter/brightness = 1.18
+shader_parameter/contrast = 1.08
+shader_parameter/ambient_fill = 0.78
+shader_parameter/rough_highlight = 0.12
+shader_parameter/sun_direction = null
+shader_parameter/limb_exponent = 1.4
+shader_parameter/rim_glow_color = Color(0.6, 0.72, 0.9, 1)
+shader_parameter/rim_glow_intensity = 0.24
+
+[sub_resource type="SphereMesh" id="SphereMesh_hvr8j"]
+radius = 6.5
+height = 13.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ryqjb"]
+render_priority = 0
+shader = ExtResource("4_ek77s")
+shader_parameter/halo_color = Color(0.5, 0.65, 0.85, 1)
+shader_parameter/halo_intensity = 0.6
+shader_parameter/halo_falloff = 4.2
+
+[sub_resource type="QuadMesh" id="QuadMesh_ksbrl"]
+size = Vector2(30, 30)
+
+[node name="NightEnvironment" type="Node3D" unique_id=1646309390]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=929260433]
+environment = SubResource("Environment_20t8s")
+
+[node name="Moon" type="MeshInstance3D" parent="." unique_id=1975937490]
+transform = Transform3D(-0.92062736, 0.020729534, -0.38989174, -0.11085008, 0.9436218, 0.31191346, 0.37437618, 0.33037558, -0.8664262, -45, 38, -100)
+material_override = SubResource("ShaderMaterial_yprx4")
+mesh = SubResource("SphereMesh_hvr8j")
+
+[node name="MoonHalo" type="MeshInstance3D" parent="Moon" unique_id=1632461189]
+material_override = SubResource("ShaderMaterial_ryqjb")
+mesh = SubResource("QuadMesh_ksbrl")
+
+[node name="MoonLight" type="DirectionalLight3D" parent="." unique_id=1058464530]
+transform = Transform3D(-0.91192156, 0.19186366, -0.36274984, 0, 0.8839696, 0.46754432, 0.41036463, 0.42636374, -0.8061109, 0, 20, 0)
+light_color = Color(0.68, 0.74, 0.88, 1)
+light_energy = 0.28
+light_indirect_energy = 0.2
+light_specular = 0.35
+shadow_enabled = true
+directional_shadow_blend_splits = true

@@ -4,68 +4,91 @@ All shaders live in `res://shaders/`.
 
 ---
 
-## `star_sky.shader`
+## 1. `soulslike_sky.gdshader`
 
 **Type:** `shader_type sky`  
-**Status:** ✅ Authored — not yet assigned to the sky material (pending integration)
+**Location:** [`res://shaders/soulslike_sky.gdshader`](../shaders/soulslike_sky.gdshader)  
+**Status:** ✅ Active in `scenes/environment/night_environment.tscn`
 
-A procedural sky shader that generates a **twinkling star field** over a dark night background. Designed to replace or complement the built-in `ProceduralSkyMaterial` used in `sky.tscn`.
+A cinematic Dark Souls-inspired procedural night sky shader providing a deep midnight atmosphere, an isotropic 3D cellular starfield, and decoupled radiance calculation.
+
+### Uniform Groups & Parameters
+
+#### `Sky_Palette`
+| Uniform | Type | Default | Description |
+|---------|------|---------|-------------|
+| `upper_sky_color` | `vec3` (source_color) | `(0.012, 0.016, 0.034)` | Deep, nearly black navy at the celestial zenith |
+| `mid_sky_color` | `vec3` (source_color) | `(0.025, 0.032, 0.058)` | Muted midnight-blue with violet undertones |
+| `horizon_color` | `vec3` (source_color) | `(0.055, 0.065, 0.090)` | Lighter, desaturated misty slate at the horizon |
+| `ground_color` | `vec3` (source_color) | `(0.005, 0.006, 0.010)` | Dark abyss gradient below the horizon line |
+
+#### `Gradient_Controls`
+| Uniform | Type | Default | Description |
+|---------|------|---------|-------------|
+| `gradient_height` | `float` (0.1–2.0) | `0.65` | Vertical transition height of the horizon blend |
+| `gradient_intensity` | `float` (0.1–3.0) | `1.15` | Falloff curve exponent of the celestial gradient |
+
+#### `Star_Field`
+| Uniform | Type | Default | Description |
+|---------|------|---------|-------------|
+| `star_density` | `float` (50–400) | `220.0` | Frequency of the 3D celestial star grid |
+| `star_brightness` | `float` (0.1–4.0) | `1.6` | Overall magnitude multiplier of the starfield |
+| `twinkle_intensity` | `float` (0.0–1.0) | `0.4` | Amplitude of brightness pulsing on prominent stars |
+| `twinkle_speed` | `float` (0.1–5.0) | `1.8` | Speed of the sinusoidal twinkle cycle |
+
+#### `Atmosphere`
+| Uniform | Type | Default | Description |
+|---------|------|---------|-------------|
+| `haze_intensity` | `float` (0.0–1.0) | `0.18` | Subdued cosmic dust / nebula haze strength |
+
+### Architecture Highlights
+- **No Polar Distortion**: Uses a 3D cellular grid derived from `EYEDIR` rather than 2D UV mapping. Stars are uniformly isotropic everywhere.
+- **Astronomical Magnitude Distribution**: Star brightness uses a steep power-law (`pow(rnd.z, 3.5)`), ensuring ~85% of stars are faint, distant pinpricks while ~15% form prominent landmark stars.
+- **Decoupled Radiance**: The animated twinkle effect checks `if (!AT_CUBEMAP_PASS)`. During environment radiance cubemap rendering, twinkle is bypassed, preventing expensive per-frame cubemap re-renderings.
 
 ---
+
+## 2. `moon_surface.gdshader`
+
+**Type:** `shader_type spatial`  
+**Render Mode:** `unshaded, blend_mix, depth_draw_opaque, cull_back`  
+**Location:** [`res://shaders/moon_surface.gdshader`](../shaders/moon_surface.gdshader)  
+**Status:** ✅ Active on `Moon` mesh in `scenes/environment/night_environment.tscn`
+
+Maps a 2048×1024 NASA Lunar Reconnaissance Orbiter (LROC) albedo texture and LOLA elevation-derived normal map onto a 3D `SphereMesh`. Features Lommel-Seeliger porous regolith scattering, subtle crater rim highlights, astronomical limb-darkening, and a delicate silver-blue Fresnel rim glow.
 
 ### Uniforms
 
 | Uniform | Type | Default | Description |
 |---------|------|---------|-------------|
-| `star_density` | `float` | `0.001` | Probability per pixel of being a star. Increase for more stars. |
-| `star_color` | `vec3` | `vec3(1.0)` — white | Base colour of the stars |
-| `star_size` | `float` | `0.5` | Reserved for future size variation |
-| `twinkle_speed` | `float` | `2.0` | Speed of the twinkling animation (uses `TIME`) |
+| `albedo_texture` | `sampler2D` | `nasa_moon_albedo_2k.jpg` | 2048×1024 NASA LROC global lunar color mosaic |
+| `normal_map` | `sampler2D` | `nasa_moon_normal.png` | 1024×512 NASA LOLA laser altimeter derived normal map |
+| `normal_depth` | `float` (0.0–3.0) | `1.1` | Crater relief and depth multiplier |
+| `moon_tint` | `vec3` (source_color) | `(0.86, 0.90, 0.96)` | Pale silvery-blue cinematic color grading |
+| `brightness` | `float` (0.1–3.0) | `1.18` | Self-illumination strength |
+| `contrast` | `float` (0.5–2.0) | `1.08` | Contrast between basaltic maria and anorthosite highlands |
+| `ambient_fill` | `float` (0.1–1.0) | `0.78` | Soft ambient fill preventing pitch-black shadows on dark crater floors |
+| `rough_highlight` | `float` (0.0–1.0) | `0.12` | Restrained cool rough highlight on crater rims |
+| `sun_direction` | `vec3` | `(0.35, 0.25, 0.90)` | Oblique solar angle illuminating crater topography |
+| `limb_exponent` | `float` (0.5–4.0) | `1.4` | Astronomical limb darkening exponent |
+| `rim_glow_color` | `vec3` (source_color) | `(0.60, 0.72, 0.90)` | Color of the delicate atmospheric Fresnel edge |
+| `rim_glow_intensity` | `float` (0.0–1.0) | `0.24` | Strength of the Fresnel edge rim (keeps surface details crisp) |
 
 ---
 
-### How It Works
+## 3. `moon_halo.gdshader`
 
-1. **Background** — sets `ALBEDO` to a near-black dark blue (`vec3(0, 0, 0.05)`).
-2. **Star generation** — uses a `fract(sin(dot(UV, ...)) * large_number)` hash to produce a pseudo-random value per UV position.
-3. **Threshold** — if the random value is below `star_density`, that pixel is a star.
-4. **Twinkle** — brightness is modulated by a sine wave driven by `TIME` and the star's unique random seed, making each star pulse at a slightly different phase.
+**Type:** `shader_type spatial`  
+**Render Mode:** `unshaded, blend_add, depth_draw_never, cull_disabled, shadows_disabled`  
+**Location:** [`res://shaders/moon_halo.gdshader`](../shaders/moon_halo.gdshader)  
+**Status:** ✅ Active on `MoonHalo` quad in `scenes/environment/night_environment.tscn`
 
----
+A camera-billboarded additive quad rendering a soft, ethereal atmospheric aura around the moon that decays smoothly into the night sky.
 
-### How to Apply
+### Uniforms
 
-1. Open `sky.tscn` in the Godot editor.
-2. Select the `WorldEnvironment` node.
-3. In the `Environment` resource, expand **Sky → Sky Material**.
-4. Change the material type from `ProceduralSkyMaterial` to `ShaderMaterial`.
-5. Assign `res://shaders/star_sky.shader` as the shader.
-6. Tune the uniforms (`star_density`, `twinkle_speed`) in the Inspector.
-
-> [!TIP]
-> Start with `star_density = 0.001` and increase gradually. Values above `0.01` will make the sky look very crowded.
-
----
-
-### Full Source
-
-```glsl
-shader_type sky;
-
-uniform float star_density = 0.001;
-uniform vec3 star_color = vec3(1.0);
-uniform float star_size = 0.5;
-uniform float twinkle_speed = 2.0;
-
-void fragment(){
-    // Base dark background
-    ALBEDO = vec3(0.0, 0.0, 0.05);
-
-    // Random star field using UV coordinates
-    float rnd = fract(sin(dot(UV, vec2(12.9898, 78.233))) * 43758.5453);
-    if (rnd < star_density) {
-        float twinkle = sin(TIME * twinkle_speed + rnd * 6.2831) * 0.5 + 0.5;
-        ALBEDO = mix(ALBEDO, star_color, twinkle);
-    }
-}
-```
+| Uniform | Type | Default | Description |
+|---------|------|---------|-------------|
+| `halo_color` | `vec3` (source_color) | `(0.55, 0.68, 0.88)` | Soft silver-cyan ethereal glow color |
+| `halo_intensity` | `float` (0.0–3.0) | `0.85` | Peak additive brightness at the lunar limb |
+| `halo_falloff` | `float` (1.0–15.0) | `3.5` | Exponential decay rate into the surrounding sky |
