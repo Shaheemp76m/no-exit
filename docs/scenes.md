@@ -11,14 +11,35 @@ All scenes live in `res://scenes/`. Each scene is self-contained and gets instan
 ### Node Tree
 ```
 Main (Node3D)
-├── Platform  → instance of platform.tscn
-├── Sky       → instance of sky.tscn
-└── Player    → instance of player.tscn (spawned at Y=2 above the platform)
+├── NightEnvironment → instance of scenes/environment/night_environment.tscn
+├── Platform         → instance of scenes/platform.tscn
+└── Player           → instance of scenes/player.tscn (spawned at Y=2 above platform)
 ```
 
 ### Notes
-- Set as the main scene via `config/main_scene` in `project.godot`.
+- Set as the main scene via `run/main_scene` in `project.godot`.
 - Player is offset `Transform3D(..., 0, 2, 0)` so they start above the platform and fall onto it at runtime.
+
+---
+
+## `night_environment.tscn`
+
+A comprehensive, reusable **Souls-like night environment** containing the procedural celestial sky, realistic cratered 3D moon, atmospheric halo, soft directional moonlight, and calibrated WorldEnvironment.
+
+### Node Tree
+```
+NightEnvironment (Node3D)
+├── WorldEnvironment      — Environment with soulslike_sky.gdshader, filmic tonemapping, glow, fog
+├── Moon (MeshInstance3D) — 3D SphereMesh (radius 6.5, height 13.0) with moon_surface.gdshader
+│   └── MoonHalo          — QuadMesh (30×30) with camera-billboarding moon_halo.gdshader
+└── MoonLight             — DirectionalLight3D casting soft silver moonlight from moon's position
+```
+
+### Components & Visual Features
+- **WorldEnvironment**: Sky background mode with custom sky shader, cool low-intensity ambient light (`Color(0.025, 0.035, 0.065)`), Filmic tonemapper, subtle glow/bloom, and distance fog.
+- **Moon**: Placed in upper-left sky `(-45, 38, -100)` for cinematic rule-of-thirds composition. Uses `moon_albedo.png` and procedural surface shader with limb darkening.
+- **MoonHalo**: Soft additive radial atmospheric glow around lunar perimeter.
+- **MoonLight**: Soft directional moonlight (`Color(0.68, 0.74, 0.88)`, energy `0.28`) casting shadows towards the scene center.
 
 ---
 
