@@ -59,48 +59,84 @@ Handles all first-person movement, camera look, jumping, and mouse capture.
 
 ---
 
-### Full Source
+## `scripts/player/player.gd`
 
-```gdscript
-extends CharacterBody3D
+**Main coordinator** for the modular first-person character.
+- Collects raw inputs (WASD, Sprint, Jump, Weapon Toggle, Interact, Debug Damage).
+- Delegates movement simulation to `MovementComponent`.
+- Updates `CameraComponent` (breathing sway, head bob, turn roll, landing shock).
+- Updates `ProceduralAnimationComponent` (arm swinging, mouse lag, wall avoidance).
+- Updates `WeaponComponent` (state transitions and grip poses).
+- Updates `InteractionComponent` (raycasts and reaching).
+- Updates HUD status overlay.
 
-const SPEED = 5.0
-const SENSITIVITY = 0.003
-const JUMP_VELOCITY = 4.5
+---
 
-var mouse_locked = true
-var pitch = 0.0
+## `scripts/player/components/movement_component.gd`
 
-@onready var camera: Camera3D = $Camera3D
+- Manages weighted Soulslike locomotion states: `IDLE`, `WALK` (2.8 m/s), `RUN` (4.8 m/s), `SPRINT` (7.2 m/s), `AIR`.
+- Employs ground acceleration (`12.0`) and friction (`14.0`) curves providing tangible weight.
+- Detects floor landing impacts and emits `landed(impact_velocity: float)`.
 
-func _ready() -> void:
-    Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+---
 
-func _unhandled_input(event: InputEvent) -> void:
-    if event is InputEventMouseMotion and mouse_locked:
-        rotate_y(-event.relative.x * SENSITIVITY)
-        pitch = clamp(pitch - event.relative.y * SENSITIVITY, -1.4, 1.4)
-        camera.rotation.x = pitch
+## `scripts/player/components/camera_component.gd`
 
-    if event is InputEventKey and event.pressed:
-        if event.keycode == KEY_ESCAPE:
-            mouse_locked = not mouse_locked
-            Input.set_mouse_mode(
-                Input.MOUSE_MODE_CAPTURED if mouse_locked else Input.MOUSE_MODE_VISIBLE
-            )
+- Handles mouse pitch/yaw with clamped angles.
+- Simulates organic exhausted breathing sway modulated by movement state.
+- Dynamic head bobbing along a figure-8 path.
+- Damped harmonic spring simulation for landing dips.
+- Directional camera jolts on damage.
 
-func _physics_process(delta: float) -> void:
-    if not is_on_floor():
-        velocity.y -= ProjectSettings.get_setting("physics/3d/default_gravity") * delta
+---
 
-    if Input.is_action_just_pressed("jump") and is_on_floor():
-        velocity.y = JUMP_VELOCITY
+## `scripts/player/components/procedural_animation_component.gd`
 
-    var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-    var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+- Animates left and right arm pivots procedurally.
+- Senses nearby obstacles with forward raycasts (`WallRayLeft`, `WallRayRight`).
+- Smoothly pulls hands inward and postures the offhand into `WALL_BRACE` when close to walls.
+- Simulates mouse rotation lag and weapon guard stances.
 
-    velocity.x = direction.x * SPEED
-    velocity.z = direction.z * SPEED
+---
 
-    move_and_slide()
-```
+## `scripts/player/components/hand_rig.gd`
+
+- Controls articulated finger joints: thumb, index, middle, ring, pinky.
+- Supports programmatic poses:
+  - `REST`: Relaxed asymmetrical wanderer posture.
+  - `GRIP`: Clenched fist wrapping the sword hilt.
+  - `REACH`: Outstretched fingers for doors and levers.
+  - `WALL_BRACE`: Splayed palm bracing against surfaces.
+  - `FLINCH`: Tensed defensive curl on impact.
+
+---
+
+## `scripts/player/components/weapon_component.gd`
+
+- Manages weapon states: `SHEATHED`, `DRAWING`, `DRAWN`, `SHEATHING`.
+- Connects to `HandRig` to synchronize finger curl with draw/sheathe transitions.
+- Smoothly moves weapon between hip sheathed position and hand grasp.
+
+---
+
+## `scripts/player/components/interaction_component.gd`
+
+- Raycasts forward up to 2.5m for `Interactable` colliders.
+- Triggers contextual HUD prompts (e.g. `[E] Open Door`).
+- Drives the wanderer's left hand to reach forward during interactions.
+
+---
+
+## `scripts/player/components/damage_reaction_component.gd`
+
+- Processes incoming damage vectors and severity (`light` vs `heavy`).
+- Directs camera shock and defensive arm recoil.
+- Tracks player health.
+
+---
+
+## `scripts/interactions/`
+
+- **`interactable.gd`**: Abstract collision base providing `interact(user)`, `can_interact(user)`, and `get_prompt()`.
+- **`door_interactable.gd`**: Medieval swinging door controller with hinge smoothing.
+

@@ -1,0 +1,151 @@
+[gd_scene load_steps=18 format=3 uid="uid://wanderer_hand_left"]
+
+[ext_resource type="Script" path="res://scripts/player/components/hand_rig.gd" id="1_hand"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Cloth"]
+albedo_color = Color(0.12, 0.12, 0.13, 1)
+roughness = 0.92
+
+[sub_resource type="StandardMaterial3D" id="Mat_Cuff"]
+albedo_color = Color(0.22, 0.2, 0.17, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_Glove"]
+albedo_color = Color(0.16, 0.13, 0.1, 1)
+roughness = 0.76
+
+[sub_resource type="BoxMesh" id="Box_Palm"]
+material = SubResource("Mat_Glove")
+size = Vector3(0.076, 0.032, 0.08)
+
+[sub_resource type="BoxMesh" id="Box_Forearm"]
+material = SubResource("Mat_Cloth")
+size = Vector3(0.084, 0.076, 0.22)
+
+[sub_resource type="CylinderMesh" id="Cyl_Cuff"]
+material = SubResource("Mat_Cuff")
+top_radius = 0.046
+bottom_radius = 0.048
+height = 0.024
+
+[sub_resource type="BoxMesh" id="Box_Prox"]
+material = SubResource("Mat_Glove")
+size = Vector3(0.018, 0.016, 0.042)
+
+[sub_resource type="BoxMesh" id="Box_Dist"]
+material = SubResource("Mat_Glove")
+size = Vector3(0.016, 0.014, 0.036)
+
+[sub_resource type="BoxMesh" id="Box_MidProx"]
+material = SubResource("Mat_Glove")
+size = Vector3(0.019, 0.016, 0.046)
+
+[sub_resource type="BoxMesh" id="Box_MidDist"]
+material = SubResource("Mat_Glove")
+size = Vector3(0.017, 0.014, 0.04)
+
+[sub_resource type="BoxMesh" id="Box_PinkyProx"]
+material = SubResource("Mat_Glove")
+size = Vector3(0.016, 0.015, 0.034)
+
+[sub_resource type="BoxMesh" id="Box_PinkyDist"]
+material = SubResource("Mat_Glove")
+size = Vector3(0.014, 0.013, 0.028)
+
+[sub_resource type="BoxMesh" id="Box_ThumbProx"]
+material = SubResource("Mat_Glove")
+size = Vector3(0.02, 0.018, 0.036)
+
+[sub_resource type="BoxMesh" id="Box_ThumbDist"]
+material = SubResource("Mat_Glove")
+size = Vector3(0.018, 0.016, 0.03)
+
+[node name="WandererHandLeft" type="Node3D"]
+script = ExtResource("1_hand")
+is_left_hand = true
+
+[node name="Wrist" type="Node3D" parent="."]
+
+[node name="Forearm" type="MeshInstance3D" parent="Wrist"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.11)
+mesh = SubResource("Box_Forearm")
+
+[node name="FrayedCuff" type="MeshInstance3D" parent="Wrist"]
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0.01)
+mesh = SubResource("Cyl_Cuff")
+
+[node name="Palm" type="Node3D" parent="Wrist"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.04)
+
+[node name="PalmMesh" type="MeshInstance3D" parent="Wrist/Palm"]
+mesh = SubResource("Box_Palm")
+
+[node name="IndexKnuckle" type="Node3D" parent="Wrist/Palm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.025, 0.002, -0.04)
+
+[node name="Proximal" type="MeshInstance3D" parent="Wrist/Palm/IndexKnuckle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.021)
+mesh = SubResource("Box_Prox")
+
+[node name="IndexJoint" type="Node3D" parent="Wrist/Palm/IndexKnuckle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.042)
+
+[node name="Distal" type="MeshInstance3D" parent="Wrist/Palm/IndexKnuckle/IndexJoint"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.018)
+mesh = SubResource("Box_Dist")
+
+[node name="MiddleKnuckle" type="Node3D" parent="Wrist/Palm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.008, 0.004, -0.04)
+
+[node name="Proximal" type="MeshInstance3D" parent="Wrist/Palm/MiddleKnuckle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.023)
+mesh = SubResource("Box_MidProx")
+
+[node name="MiddleJoint" type="Node3D" parent="Wrist/Palm/MiddleKnuckle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.046)
+
+[node name="Distal" type="MeshInstance3D" parent="Wrist/Palm/MiddleKnuckle/MiddleJoint"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.02)
+mesh = SubResource("Box_MidDist")
+
+[node name="RingKnuckle" type="Node3D" parent="Wrist/Palm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.009, 0.001, -0.04)
+
+[node name="Proximal" type="MeshInstance3D" parent="Wrist/Palm/RingKnuckle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.021)
+mesh = SubResource("Box_Prox")
+
+[node name="RingJoint" type="Node3D" parent="Wrist/Palm/RingKnuckle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.042)
+
+[node name="Distal" type="MeshInstance3D" parent="Wrist/Palm/RingKnuckle/RingJoint"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.018)
+mesh = SubResource("Box_Dist")
+
+[node name="PinkyKnuckle" type="Node3D" parent="Wrist/Palm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.025, -0.003, -0.04)
+
+[node name="Proximal" type="MeshInstance3D" parent="Wrist/Palm/PinkyKnuckle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.017)
+mesh = SubResource("Box_PinkyProx")
+
+[node name="PinkyJoint" type="Node3D" parent="Wrist/Palm/PinkyKnuckle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.034)
+
+[node name="Distal" type="MeshInstance3D" parent="Wrist/Palm/PinkyKnuckle/PinkyJoint"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.014)
+mesh = SubResource("Box_PinkyDist")
+
+[node name="ThumbKnuckle" type="Node3D" parent="Wrist/Palm"]
+transform = Transform3D(0.939693, 0, 0.34202, 0, 1, 0, -0.34202, 0, 0.939693, 0.038, -0.008, -0.015)
+
+[node name="Proximal" type="MeshInstance3D" parent="Wrist/Palm/ThumbKnuckle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.008, 0, -0.018)
+mesh = SubResource("Box_ThumbProx")
+
+[node name="ThumbJoint" type="Node3D" parent="Wrist/Palm/ThumbKnuckle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.016, 0, -0.036)
+
+[node name="Distal" type="MeshInstance3D" parent="Wrist/Palm/ThumbKnuckle/ThumbJoint"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.006, 0, -0.015)
+mesh = SubResource("Box_ThumbDist")
