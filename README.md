@@ -23,7 +23,9 @@ no-exit/
 ├── icon.svg                               # Project icon
 ├── assets/
 │   └── environment/
-│       └── moon_albedo.png                # 1024×512 lunar surface albedo texture
+│       ├── nasa_moon_albedo_2k.jpg        # 2048×1024 NASA LROC global lunar color map
+│       ├── nasa_moon_normal.png           # 1024×512 NASA LOLA elevation-derived normal map
+│       └── TEXTURE_LICENSES.md            # NASA public domain licensing documentation
 ├── scenes/
 │   ├── main.tscn                          # Root scene — composes platform, night environment, player
 │   ├── platform.tscn                      # Square static platform (10×10 units)

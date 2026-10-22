@@ -63,45 +63,6 @@ Platform (StaticBody3D)
 | Roughness | `0.8` |
 | Metallic | `0.0` |
 
----
-
-## `sky.tscn`
-
-Sets up the **night sky and fog atmosphere** using a `WorldEnvironment` node.
-
-### Node Tree
-```
-WorldEnvironment
-└── environment (Environment resource)
-    └── sky (Sky resource)
-        └── sky_material (ProceduralSkyMaterial)
-```
-
-### Sky Colors
-| Property | Value |
-|----------|-------|
-| Sky top color | `Color(0.0, 0.0, 0.02, 1.0)` — near black |
-| Sky horizon color | `Color(0.01, 0.01, 0.02, 1.0)` |
-| Ground horizon | `Color(0.01, 0.01, 0.02, 1.0)` |
-| Ground bottom | `Color(0.0, 0.0, 0.0, 1.0)` — pure black |
-
-### Fog
-| Property | Value |
-|----------|-------|
-| Fog enabled | `true` |
-| Fog color | `Color(0.02, 0.02, 0.04, 1.0)` |
-| Fog density | `0.01` |
-
-### Ambient Light
-| Property | Value |
-|----------|-------|
-| Ambient light color | `Color(0.05, 0.05, 0.08, 1.0)` |
-| Ambient light energy | `0.5` |
-
-> [!NOTE]
-> A custom procedural **star shader** (`res://shaders/star_sky.shader`) has been authored and is ready to be assigned to the sky material for a more detailed star field.
-
----
 
 ## `player.tscn`
 
