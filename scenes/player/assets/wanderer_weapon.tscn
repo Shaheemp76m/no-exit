@@ -1,0 +1,60 @@
+[gd_scene load_steps=7 format=3 uid="uid://wanderer_weapon"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Blade"]
+albedo_color = Color(0.72, 0.74, 0.78, 1)
+metallic = 0.96
+roughness = 0.22
+
+[sub_resource type="StandardMaterial3D" id="Mat_Iron"]
+albedo_color = Color(0.24, 0.24, 0.26, 1)
+metallic = 0.88
+roughness = 0.42
+
+[sub_resource type="StandardMaterial3D" id="Mat_Grip"]
+albedo_color = Color(0.14, 0.11, 0.09, 1)
+roughness = 0.82
+
+[sub_resource type="CylinderMesh" id="Mesh_Grip"]
+material = SubResource("Mat_Grip")
+top_radius = 0.015
+bottom_radius = 0.015
+height = 0.13
+
+[sub_resource type="SphereMesh" id="Mesh_Pommel"]
+material = SubResource("Mat_Iron")
+radius = 0.022
+height = 0.044
+
+[sub_resource type="BoxMesh" id="Mesh_Guard"]
+material = SubResource("Mat_Iron")
+size = Vector3(0.2, 0.022, 0.026)
+
+[sub_resource type="BoxMesh" id="Mesh_Blade"]
+material = SubResource("Mat_Blade")
+size = Vector3(0.042, 0.008, 0.74)
+
+[sub_resource type="PrismMesh" id="Mesh_Tip"]
+material = SubResource("Mat_Blade")
+size = Vector3(0.042, 0.09, 0.008)
+
+[node name="WandererWeapon" type="Node3D"]
+
+[node name="Grip" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, 0)
+mesh = SubResource("Mesh_Grip")
+
+[node name="Pommel" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.075)
+mesh = SubResource("Mesh_Pommel")
+
+[node name="Crossguard" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.07)
+mesh = SubResource("Mesh_Guard")
+
+[node name="Blade" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.45)
+mesh = SubResource("Mesh_Blade")
+
+[node name="Tip" type="MeshInstance3D" parent="Blade"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 0, -0.415)
+mesh = SubResource("Mesh_Tip")

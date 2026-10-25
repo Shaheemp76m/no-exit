@@ -66,21 +66,65 @@ Platform (StaticBody3D)
 
 ## `player.tscn`
 
-The **first-person player controller**.
+The **first-person player controller** — inherits from [`res://scenes/player/player.tscn`](file:///home/ross/projects/gameathon/godot/no-exit/scenes/player/player.tscn) ensuring backward compatibility while running the full modular architecture.
+
+---
+
+## `player/player.tscn`
+
+The **modular cinematic Soulslike player character**.
 
 ### Node Tree
 ```
-Player (CharacterBody3D)
-├── Camera3D              — current=true, height Y=1.6 (eye level)
-└── CollisionShape3D      — CapsuleShape3D (radius=0.5, height=1.8)
+Player (CharacterBody3D, script: player.gd)
+├── CollisionShape3D (CapsuleShape3D, radius=0.45, height=1.8)
+├── MovementComponent (Node, script: movement_component.gd)
+├── DamageReactionComponent (Node, script: damage_reaction_component.gd)
+├── BeltLantern (OmniLight3D, warm amber fill at waist)
+├── WandererBody (instance of scenes/player/assets/wanderer_body.tscn)
+├── CameraComponent (Node3D, script: camera_component.gd)
+│   ├── Camera3D (Camera3D, current=true, near=0.05, fov=75)
+│   ├── InteractionComponent (Node3D, script: interaction_component.gd)
+│   │   └── RayCast3D (target_position=(0, 0, -2.5), areas=true)
+│   └── ProceduralAnimationComponent (Node3D, script: procedural_animation_component.gd)
+│       ├── WallRayLeft (RayCast3D, left wall sensor)
+│       ├── WallRayRight (RayCast3D, right wall sensor)
+│       ├── LeftArmPivot (Node3D)
+│       │   └── WandererHandLeft (instance of wanderer_hand_left.tscn)
+│       └── RightArmPivot (Node3D)
+│           └── WandererHandRight (instance of wanderer_hand_right.tscn)
+│               └── WeaponSocket
+│                   └── WeaponComponent (Node3D, script: weapon_component.gd)
+│                       └── WeaponMesh (instance of wanderer_weapon.tscn)
+└── HUD (CanvasLayer)
+    ├── Reticle (Center target dot)
+    ├── PromptLabel (Contextual interaction prompt)
+    └── StatusLabel (HP, movement state, weapon state, controls guide)
 ```
 
-### Script
-Attached script: [`res://scripts/player_controller.gd`](../scripts/player_controller.gd)
+---
 
-### Key Settings
-| Property | Value |
-|----------|-------|
-| Camera Y offset | `1.6` (eye level) |
-| Capsule radius | `0.5` |
-| Capsule height | `1.8` |
+## `player/assets/`
+
+- **`wanderer_body.tscn`**: Worn medieval mantle, folded tunic, waist belt, and forged iron buckle. Visually positioned so looking down frames the chest without camera clipping.
+- **`wanderer_hand_left.tscn`**: Articulated left forearm, frayed cloth cuff, palm, opposable thumb, and four fingers with cracked leather glove material.
+- **`wanderer_hand_right.tscn`**: Articulated right hand containing the `WeaponSocket` node for dynamic sword attachment.
+- **`wanderer_weapon.tscn`**: Weathered medieval steel sword with fuller groove, steel crossguard, wrapped leather grip, and counterweight pommel.
+
+---
+
+## `interactions/interactive_door.tscn`
+
+A heavy medieval wooden door with iron reinforcing bands, stone archway pillars, handle, and an `AnimatableBody3D` door leaf pivoted along a hinge. Interacting swings the door open 95 degrees with hinge smoothing and updates prompts dynamically.
+
+---
+
+## `test/character_test_room.tscn`
+
+A dedicated testing arena set under the night sky featuring:
+- Narrow corridor with stone walls for testing wall avoidance and hand bracing.
+- Interactive medieval door at the corridor exit.
+- Stone stairs and elevated 2.5m drop ledge for testing vertical locomotion and landing impacts.
+- Cursed rune damage zone for testing directional damage, camera shock, and flinch recoil.
+- Warm medieval braziers and torchlight.
+

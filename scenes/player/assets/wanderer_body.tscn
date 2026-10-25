@@ -1,0 +1,60 @@
+[gd_scene load_steps=10 format=3 uid="uid://wanderer_body"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Cloth"]
+albedo_color = Color(0.12, 0.12, 0.13, 1)
+roughness = 0.92
+
+[sub_resource type="StandardMaterial3D" id="Mat_Mantle"]
+albedo_color = Color(0.16, 0.15, 0.14, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_Belt"]
+albedo_color = Color(0.18, 0.14, 0.1, 1)
+roughness = 0.76
+
+[sub_resource type="StandardMaterial3D" id="Mat_Buckle"]
+albedo_color = Color(0.3, 0.3, 0.32, 1)
+metallic = 0.88
+roughness = 0.38
+
+[sub_resource type="BoxMesh" id="Mesh_Chest"]
+material = SubResource("Mat_Cloth")
+size = Vector3(0.44, 0.42, 0.28)
+
+[sub_resource type="BoxMesh" id="Mesh_Mantle"]
+material = SubResource("Mat_Mantle")
+size = Vector3(0.5, 0.14, 0.32)
+
+[sub_resource type="BoxMesh" id="Mesh_Belt"]
+material = SubResource("Mat_Belt")
+size = Vector3(0.46, 0.09, 0.3)
+
+[sub_resource type="BoxMesh" id="Mesh_Buckle"]
+material = SubResource("Mat_Buckle")
+size = Vector3(0.09, 0.08, 0.04)
+
+[sub_resource type="BoxMesh" id="Mesh_TunicSkirt"]
+material = SubResource("Mat_Cloth")
+size = Vector3(0.46, 0.35, 0.32)
+
+[node name="WandererBody" type="Node3D"]
+
+[node name="Mantle" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.16, -0.05)
+mesh = SubResource("Mesh_Mantle")
+
+[node name="ChestMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.38, -0.06)
+mesh = SubResource("Mesh_Chest")
+
+[node name="LeatherBelt" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.62, -0.06)
+mesh = SubResource("Mesh_Belt")
+
+[node name="BeltBuckle" type="MeshInstance3D" parent="LeatherBelt"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.145)
+mesh = SubResource("Mesh_Buckle")
+
+[node name="TunicSkirt" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.84, -0.06)
+mesh = SubResource("Mesh_TunicSkirt")

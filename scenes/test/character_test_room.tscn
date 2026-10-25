@@ -1,0 +1,166 @@
+[gd_scene load_steps=18 format=3 uid="uid://character_test_room"]
+
+[ext_resource type="PackedScene" path="res://scenes/environment/night_environment.tscn" id="1_env"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/interactions/interactive_door.tscn" id="3_door"]
+[ext_resource type="Script" path="res://scripts/test/damage_zone.gd" id="4_damage_zone"]
+
+
+[sub_resource type="StandardMaterial3D" id="Mat_StoneFloor"]
+albedo_color = Color(0.14, 0.14, 0.16, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_StoneWall"]
+albedo_color = Color(0.18, 0.18, 0.2, 1)
+roughness = 0.92
+
+[sub_resource type="StandardMaterial3D" id="Mat_RuneHazard"]
+albedo_color = Color(0.12, 0.08, 0.08, 1)
+emission_enabled = true
+emission = Color(0.85, 0.2, 0.1, 1)
+emission_energy_multiplier = 0.8
+roughness = 0.6
+
+[sub_resource type="BoxMesh" id="Mesh_Floor"]
+material = SubResource("Mat_StoneFloor")
+size = Vector3(32, 1, 32)
+
+[sub_resource type="BoxShape3D" id="Shape_Floor"]
+size = Vector3(32, 1, 32)
+
+[sub_resource type="BoxMesh" id="Mesh_Wall"]
+material = SubResource("Mat_StoneWall")
+size = Vector3(1, 4, 10)
+
+[sub_resource type="BoxShape3D" id="Shape_Wall"]
+size = Vector3(1, 4, 10)
+
+[sub_resource type="BoxMesh" id="Mesh_Ledge"]
+material = SubResource("Mat_StoneWall")
+size = Vector3(8, 2.5, 8)
+
+[sub_resource type="BoxShape3D" id="Shape_Ledge"]
+size = Vector3(8, 2.5, 8)
+
+[sub_resource type="BoxMesh" id="Mesh_Step"]
+material = SubResource("Mat_StoneWall")
+size = Vector3(4, 0.4, 0.6)
+
+[sub_resource type="BoxShape3D" id="Shape_Step"]
+size = Vector3(4, 0.4, 0.6)
+
+[sub_resource type="BoxMesh" id="Mesh_Hazard"]
+material = SubResource("Mat_RuneHazard")
+size = Vector3(3, 0.1, 3)
+
+[sub_resource type="BoxShape3D" id="Shape_Hazard"]
+size = Vector3(3, 0.8, 3)
+
+[node name="CharacterTestRoom" type="Node3D"]
+
+[node name="NightEnvironment" parent="." instance=ExtResource("1_env")]
+
+[node name="Floor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="FloorMesh" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("Mesh_Floor")
+
+[node name="FloorCollision" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("Shape_Floor")
+
+[node name="CorridorWallLeft" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.85, 2, -6)
+
+[node name="Mesh" type="MeshInstance3D" parent="CorridorWallLeft"]
+mesh = SubResource("Mesh_Wall")
+
+[node name="Collision" type="CollisionShape3D" parent="CorridorWallLeft"]
+shape = SubResource("Shape_Wall")
+
+[node name="CorridorWallRight" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.85, 2, -6)
+
+[node name="Mesh" type="MeshInstance3D" parent="CorridorWallRight"]
+mesh = SubResource("Mesh_Wall")
+
+[node name="Collision" type="CollisionShape3D" parent="CorridorWallRight"]
+shape = SubResource("Shape_Wall")
+
+[node name="InteractiveDoor" parent="." instance=ExtResource("3_door")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -11)
+
+[node name="HighLedge" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1.25, 2)
+
+[node name="Mesh" type="MeshInstance3D" parent="HighLedge"]
+mesh = SubResource("Mesh_Ledge")
+
+[node name="Collision" type="CollisionShape3D" parent="HighLedge"]
+shape = SubResource("Shape_Ledge")
+
+[node name="Step1" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.2, -2.4)
+
+[node name="Mesh" type="MeshInstance3D" parent="Step1"]
+mesh = SubResource("Mesh_Step")
+
+[node name="Collision" type="CollisionShape3D" parent="Step1"]
+shape = SubResource("Shape_Step")
+
+[node name="Step2" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.6, -2.9)
+
+[node name="Mesh" type="MeshInstance3D" parent="Step2"]
+mesh = SubResource("Mesh_Step")
+
+[node name="Collision" type="CollisionShape3D" parent="Step2"]
+shape = SubResource("Shape_Step")
+
+[node name="Step3" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1.0, -3.4)
+
+[node name="Mesh" type="MeshInstance3D" parent="Step3"]
+mesh = SubResource("Mesh_Step")
+
+[node name="Collision" type="CollisionShape3D" parent="Step3"]
+shape = SubResource("Shape_Step")
+
+[node name="Step4" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1.4, -3.9)
+
+[node name="Mesh" type="MeshInstance3D" parent="Step4"]
+mesh = SubResource("Mesh_Step")
+
+[node name="Collision" type="CollisionShape3D" parent="Step4"]
+shape = SubResource("Shape_Step")
+
+[node name="DamageHazardZone" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.05, 3)
+script = ExtResource("4_damage_zone")
+damage_amount = 20.0
+severity = "heavy"
+
+[node name="Mesh" type="MeshInstance3D" parent="DamageHazardZone"]
+mesh = SubResource("Mesh_Hazard")
+
+[node name="Collision" type="CollisionShape3D" parent="DamageHazardZone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+shape = SubResource("Shape_Hazard")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 3)
+
+[node name="DoorTorch" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4, 2.2, -10.5)
+light_color = Color(1, 0.68, 0.35, 1)
+light_energy = 1.8
+omni_range = 14.0
+
+[node name="CorridorTorch" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, -5.5)
+light_color = Color(1, 0.65, 0.3, 1)
+light_energy = 1.4
+omni_range = 10.0
+
+

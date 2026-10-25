@@ -1,0 +1,131 @@
+[gd_scene load_steps=12 format=3 uid="uid://cinematic_soulslike_player"]
+
+[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://scripts/player/components/movement_component.gd" id="2_movement"]
+[ext_resource type="Script" path="res://scripts/player/components/camera_component.gd" id="3_camera"]
+[ext_resource type="Script" path="res://scripts/player/components/interaction_component.gd" id="4_interact"]
+[ext_resource type="Script" path="res://scripts/player/components/procedural_animation_component.gd" id="5_proc_anim"]
+[ext_resource type="Script" path="res://scripts/player/components/weapon_component.gd" id="6_weapon"]
+[ext_resource type="Script" path="res://scripts/player/components/damage_reaction_component.gd" id="7_damage"]
+[ext_resource type="PackedScene" path="res://scenes/player/assets/wanderer_body.tscn" id="8_body"]
+[ext_resource type="PackedScene" path="res://scenes/player/assets/wanderer_hand_left.tscn" id="9_hand_l"]
+[ext_resource type="PackedScene" path="res://scenes/player/assets/wanderer_hand_right.tscn" id="10_hand_r"]
+[ext_resource type="PackedScene" path="res://scenes/player/assets/wanderer_weapon.tscn" id="11_weapon"]
+
+[sub_resource type="CapsuleShape3D" id="Capsule_Player"]
+radius = 0.45
+height = 1.8
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("Capsule_Player")
+
+[node name="MovementComponent" type="Node" parent="."]
+script = ExtResource("2_movement")
+
+[node name="DamageReactionComponent" type="Node" parent="."]
+script = ExtResource("7_damage")
+
+[node name="BeltLantern" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+light_color = Color(0.95, 0.82, 0.65, 1)
+light_energy = 0.55
+omni_range = 8.0
+
+
+[node name="WandererBody" parent="." instance=ExtResource("8_body")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, 0)
+
+[node name="CameraComponent" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+script = ExtResource("3_camera")
+
+[node name="Camera3D" type="Camera3D" parent="CameraComponent"]
+current = true
+fov = 75.0
+near = 0.05
+
+[node name="InteractionComponent" type="Node3D" parent="CameraComponent"]
+script = ExtResource("4_interact")
+
+[node name="RayCast3D" type="RayCast3D" parent="CameraComponent/InteractionComponent"]
+target_position = Vector3(0, 0, -2.5)
+collide_with_areas = true
+
+[node name="ProceduralAnimationComponent" type="Node3D" parent="CameraComponent"]
+script = ExtResource("5_proc_anim")
+
+[node name="WallRayLeft" type="RayCast3D" parent="CameraComponent/ProceduralAnimationComponent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, -0.15, 0)
+target_position = Vector3(0, 0, -1)
+
+[node name="WallRayRight" type="RayCast3D" parent="CameraComponent/ProceduralAnimationComponent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, -0.15, 0)
+target_position = Vector3(0, 0, -1)
+
+[node name="LeftArmPivot" type="Node3D" parent="CameraComponent/ProceduralAnimationComponent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.24, -0.26, -0.38)
+
+[node name="WandererHandLeft" parent="CameraComponent/ProceduralAnimationComponent/LeftArmPivot" instance=ExtResource("9_hand_l")]
+
+[node name="RightArmPivot" type="Node3D" parent="CameraComponent/ProceduralAnimationComponent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.24, -0.26, -0.38)
+
+[node name="WandererHandRight" parent="CameraComponent/ProceduralAnimationComponent/RightArmPivot" instance=ExtResource("10_hand_r")]
+
+[node name="WeaponComponent" type="Node3D" parent="CameraComponent/ProceduralAnimationComponent/RightArmPivot/WandererHandRight/Wrist/Palm/WeaponSocket"]
+script = ExtResource("6_weapon")
+
+[node name="WeaponMesh" parent="CameraComponent/ProceduralAnimationComponent/RightArmPivot/WandererHandRight/Wrist/Palm/WeaponSocket/WeaponComponent" instance=ExtResource("11_weapon")]
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Reticle" type="ColorRect" parent="HUD"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -2.0
+offset_top = -2.0
+offset_right = 2.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 1, 1, 0.6)
+
+[node name="PromptLabel" type="Label" parent="HUD"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = 30.0
+offset_right = 160.0
+offset_bottom = 65.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 18
+text = "[E] Interact"
+horizontal_alignment = 1
+
+[node name="StatusLabel" type="Label" parent="HUD"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -70.0
+offset_right = 800.0
+offset_bottom = -20.0
+grow_vertical = 0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 14
+text = "HP: 100 | STATE: IDLE | WEAPON: SHEATHED"
