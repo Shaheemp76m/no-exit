@@ -22,6 +22,9 @@ var mouse_locked: bool = true
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
+	if camera_comp:
+		camera_comp.character = self
+
 	# Configure handedness
 	if left_hand_rig:
 		left_hand_rig.is_left_hand = true
@@ -44,10 +47,18 @@ func _ready() -> void:
 	if movement_comp:
 		movement_comp.landed.connect(camera_comp.on_landed)
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
+	# Click window to recapture mouse if focus was lost or cursor was freed
+	if event is InputEventMouseButton and event.pressed:
+		if not mouse_locked or Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED:
+			mouse_locked = true
+			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
 	if event is InputEventMouseMotion and mouse_locked:
-		camera_comp.handle_mouse_input(event)
-		proc_anim_comp.handle_mouse_lag(event.relative)
+		if camera_comp:
+			camera_comp.handle_mouse_input(event)
+		if proc_anim_comp:
+			proc_anim_comp.handle_mouse_lag(event.relative)
 
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_ESCAPE:
@@ -58,6 +69,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 		# Action triggers
 		if Input.is_action_just_pressed("toggle_weapon"):
+
 			if weapon_comp:
 				weapon_comp.toggle_weapon()
 

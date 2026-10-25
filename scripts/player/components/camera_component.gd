@@ -3,7 +3,7 @@ extends Node3D
 
 ## CameraComponent: First-person camera with organic breathing, footstep bobbing, turn roll, landing dips, and damage jolts.
 
-@export var mouse_sensitivity: float = 0.0025
+@export var mouse_sensitivity: float = 0.003
 @export var pitch_min: float = -1.4
 @export var pitch_max: float = 1.4
 
@@ -44,11 +44,15 @@ const SPRING_DAMPING: float = 14.0
 var damage_rot_impulse: Vector3 = Vector3.ZERO
 
 func _ready() -> void:
+	if not character:
+		character = get_parent() as CharacterBody3D
 	if camera:
 		camera.near = 0.05 # Prevent near-plane clipping through character chest
 		camera.fov = 75.0
 
 func handle_mouse_input(event: InputEventMouseMotion) -> void:
+	if not character:
+		character = get_parent() as CharacterBody3D
 	if not character:
 		return
 	
@@ -99,12 +103,16 @@ func update_camera(delta: float, current_speed: float, max_speed: float, is_on_f
 	# 5. Decay damage impulse
 	damage_rot_impulse = damage_rot_impulse.lerp(Vector3.ZERO, 10.0 * delta)
 
-	# Apply final camera transform
+	# Rotate CameraComponent on X for pitch (so camera, arms, and raycast pitch together)
+	rotation.x = pitch
+
+	# Apply local procedural offsets to Camera3D
 	camera.position.x = bob_h
 	camera.position.y = breath_v + bob_v + spring_displacement
-	camera.rotation.x = pitch + breath_p + damage_rot_impulse.x
+	camera.rotation.x = breath_p + damage_rot_impulse.x
 	camera.rotation.y = damage_rot_impulse.y
 	camera.rotation.z = roll_offset + damage_rot_impulse.z
+
 
 func on_landed(impact_velocity: float) -> void:
 	# Downward impact spring impulse
